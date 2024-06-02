@@ -1,0 +1,223 @@
+---
+title: "Lab_1_Ginott_Yasmin_and_Bram_Neel.Rmd"
+output: html_document
+date: "2024-06-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+df <- read.csv("/Users/neelbram/Library/Mobile Documents/com~apple~CloudDocs/לימודים/R/R_lab1owid-covid-data.csv")
+---
+title: "52414 - lab 1 instructions"
+author: "52414"
+date: "30/5/2024"
+output: html_document
+---
+
+
+# *Lab 1: Basic Data Wrangling and Plotting, Distributions*  
+<br/><br/>  
+  
+### Submission Instructions  
+  
+This lab will be submitted in pairs (if you don't have a pair, please contact us).  
+**Important: your team's name must be `FamilyName1_Name1_and_FamilyName2_Name2`**.  
+
+You should upload two files to moodle: this Rmd file (with your answers filled-in), together with the html file that is outputted automatically by knitr when you knit the Rmd. Anything else will be disregarded. In addition, please adhere to the following file format:    
+`Lab_1_FamilyName1_Name1_and_FamilyName2_Name2.Rmd/html`      
+
+<br/><br/>
+The only allowed libraries are the following (**please do not add additional libraries without permission from the course staff**):
+```{r, echo = TRUE, results = 'hide',  warning=FALSE, message=FALSE,  eval=FALSE}
+library(tidyverse) # This includes dplyr, stringr, ggplot2, .. 
+library(data.table)
+library(rworldmap) # world map
+library(ggthemes)
+library(reshape2) # melt: change data-frame format long/wide
+library(e1071) # skewness and kurtosis
+```  
+<br/><br/>
+
+## Analysis of the World Covid-19 Dataset         
+    
+The `world-of-data` website hosts world-wide epidemiological data on the Corona Virus (COVID-19). 
+The dataset is compiled by the Johns Hopkins University Center for Systems Science and Engineering (JHU CCSE) from various sources, 
+It contains data since January 2020. For the data and more information about it, please visit [here](https://github.com/owid/covid-19-data/tree/master/public/data).    <br>
+  
+You can see several nice visualizations of the data [here](https://ourworldindata.org/covid-vaccinations)
+  
+We will focus on analyzing the Covid-19 cases, deaths and vaccinations data over time for different countries and continents.   
+
+
+### General Guidance
+- Your solution should be submitted as a full `Rmd` report integrating text, code, figures and tables. 
+For each question, describe first in the text of your solution what you're trying to do, then include the relevant code, 
+then the results (e.g. figures/tables) and a textual description of them. 
+
+- In most questions the extraction/manipulation of relevant parts of the data-frame can be performed using commands from the `tidyverse` and `dplyr` R packages, such as `head`, `arrange`, `aggregate`, `group-by`, `filter`, `select`, `summaries`, `mutate`, `order` etc.
+
+- When displaying tables, show the relevant columns and rows with meaningful names, and describe the results. 
+
+- When displaying figures, make sure that the figure is clear to the reader, axis ranges are appropriate, labels for the axis, title and different curves/bars are displayed clearly, font sizes are large enough, a legend is shown when needed etc. 
+Explain and describe in text what is shown in the figure. 
+
+- In some questions it is not specified which commands you should use (e.g. "take column X and compute the median .." ) and you have to look at the data yourself in order to figure out what the exact commands to perform. For example, you need to decide how to extract data by continent or by income level. 
+
+- Sometimes data may be missing (e.g. `NA`). Make sure that all your calculations (e.g. taking the maximum, average, correlation etc.)
+take this into account. Specifically, the calculations should ignore the missing values to allow us to compute the desired results for the rest of the values (for example, using the option `na.rm = TRUE`). 
+
+- **Grading:** There are $15$ sub-questions overall. Each subquestion is worth $6\frac{2}{3}$ points for the lab grade. The questions vary in length and difficulty level. It is recommended to start with the simpler and shorter questions. 
+
+
+### Questions: 
+
+1. **Loading data and basic processing:**
+    a. Load the complete up-to-date covid19 dataset in the file `owid-covid-data.csv` from [world-of-data](https://github.com/owid/covid-19-data/tree/master/public/data) into a data-frame in `R`. Change the class of the `date` variable to `Date` and check that the class is correct.  Display the top five rows of the data-frame.
+    
+    b. List in a table the top five *dates* in terms of number of `new_cases` for `High income` countries. Show only the date and the number of new cases at this date. <br>
+Repeat the same with three additional separate tables for top five dates for the three other income classes (e.g. `Low income`). 
+
+2. **Comparing different income levels:**
+    a. Plot the value of the column `new_cases_per_million` as a function of the date for the four different income classes, shown on the same graph with different four colors or symbols.  Use meaningful axis and plot labels, and add an informative legend. `NA` or other no-number values should not be displayed. <br>
+     Next, make a similar plot for the *log* of the *smoothed* number of new cases per million, `new_cases_smoothed_per_million`.
+Which plot is easier to interpret? explain. 
+
+    b. Similarly, make two additional separate plots for the *log* of the *smoothed* number of `new deaths per million` and `new vaccinations per million` as a function of date for the four income classes. Describe the plotted results.
+
+
+3. **Storing and analyzing current (cumulative) values:**
+    a. Create a new data-frame called `current` with *one row per location* (countries and other locations such as continents etc.), that for each `location` will store as columns the country name (`location`) and `continent`, and also the **current** values (latest date reported for each value) for: 
+`total_cases_per_million`, `total_deaths_per_million`, 
+`total_vaccinations_per_hundred`, `people_fully_vaccinated_per_hundred`, `total_boosters_per_hundred` and `excess_mortality_cumulative_per_million`. <br>
+Sort this new data-frame alphabetically by `location` and show the first five rows. 
+
+        **Note:** Some values are not reported daily for some locations. In this case, there may be 'NA' values in the complete covid19 data-frame. In this case, the `current` data-frame should store the last reported (numeric) value for each location, even if there are 'NA' values for the same location at later dates. If for a certain `location` and column there are no reported values at all (all 'NA'), then the `current` data-frame should also have an `NA` for this `location` and column.  
+
+    b. Divide the countries into groups by `median age` with a resolution of `10` years: below `20`, between `20` and `30` etc. For each such group, show the values for the current `total_cases_per_million` in the different countries in the group. You may use a histogram with 10 bins or a smoothed desnity for each group, and display
+    the groups in the same figure or separate figures (using either base-R commands or `ggplot`). What is your conclusion?  
+
+    c. Next, make a scatter plot showing the current `total_deaths_per_million` (y-axis) vs. the current `total_cases_per_million`. Compute a linear regression line of the total number of deaths per million as a function of the total number of cases per million and add the fitted regression line to the plot. What is the slope and what does it represent? 
+
+
+
+4. **Vaccinations in different continents:**
+    For each of the six different continents (`Africa`, `Asia`, `Europe`, `North America`, `Oceania`, `South America`), make a boxplot of the distribution of the (current) total number of vaccinations per hundred in all the countries in the continent. Show one figure with the six boxplots next to each other. (Use the new `current` data-frame created in qu. 3). <bt>
+Find all the outlier countries in each continent  and write their name and value.
+
+
+
+5. **Cumulative plots:**
+    a. Plot the total number of cases as a function of the date, for each of the six different continents (`Africa`, `Asia`, `Europe`, `North America`, `Oceania`, `South America`) and for the whole world. Show one figure with graphs of different colors/symbols. 
+    
+      b. Find the first date at which at least $95\%$ of `total deaths` have occurred in the entire world, compared to the current number. Filter the data-frame to include only data from the start date, until the end of the corresponding month of this date. (For example, if $95\%$ of deaths occured until February 6th, 2024, include the entire February 2024 month, but not March 2024). Repeat the cumulative plot from (a.) for the filtered data-frame, but this time normalize the y-axis to be between $0$ and $1$ for each continent, i.e. display the empirical CDF of the number of deaths for each continent. Find and report the median date in terms of total deaths for each continent, i.e. the first date at which at least $50\%$ of deaths for the filtered data-frame have occurred.
+
+    c. Make a similar plot to (a.) for all continents and the world, but for the `total_vaccinations_per_hundred` variable in the filtered data-frame (not normalized). Describe the results. 
+
+    d. *Death risk after Covid-19 infection:* Add to the main covid data-frame a new column called `death_rate`, defined for each `location` and `date` as the number of `total_deaths` divided by the number of `total_cases`. This column represents the risk of a person diagnosed with covid to die from the disease. 
+    Plot for each of the six continents and the entire world the `death_rate` as a function of time (one plot with separate colors/symbols). Since there is a delay from time of diagnosis to time of death, the initial values of this column are less reliable as a measure of death risk, hence start your plot on *January 1st, 2021* (the end date should be the end of the month you've found in qu. 5.b.). Do we see a decrease in the risk over time? can you suggest explanations for the observed trends? Do the plots suggest that the change in death risk is correlated to the change in the number of vaccinations?
+
+
+
+
+6. **Displaying data on the world map:**
+    Use the `rworldmap` package to display the world map and color each country based on the `total_deaths_per_million`. 
+Repeat for `total_vaccinations_per_hundred`, and `excess_mortality_cumulative_per_million`. Describe the resulting maps in a couple of sentences.
+
+    List the top three countries for each of these variables in a table.  
+
+    **Guidance:** Use the `joinCountryData2Map` and `mapCountryData` commands to make the plots. 
+Keep countries with missing data in white. 
+
+
+
+7. **Excess mortality:**
+It is claimed that in some countries the death-rate from Covid-19 is under-reported. We can investigate this using excess mortality data - this data lists the number of deaths from all causes at each country, compared to the usual number of deaths at the same country and date calculated from previous years mortality data. The gap between the two, representing and increase (or decrease) in deaths beyond the usual rate, is called 'excess mortality', and might be partially or fully explained by deaths from Covid-19.
+    a. Use the `current` data-frame to make a scatter plot of the current date `total_deaths_per_million` vs. the `excess_mortality_cumulative_per_million`
+for all countries for which excess mortality data is available. Add the lines $y=x, y=x+3000$ and $y=x-3000$ to the plot. Mark on the graph in a different color all the countries for which the difference between the the excess mortality and the covid death rate (per million) is at least 3000 and add their names to the plot (you can use the `text` function). 
+
+    b. Choose three countries where the excess mortality was at least 3000 per million *above* the reported covid death rate, and that have at least $50$ available data points for each for `excess_mortality_cumulative_per_million`. 
+Use the main covid data-frame to plot as a function of time both the `total_deaths_per_million` and the `excess_mortality_cumulative_per_million` for each country (one plot - use different colors/symbols for the different countries and covid-deaths/excess-mortality). Identify from the plot for each country the time periods where most deaths not explained by Covid-19 occurred. 
+
+
+
+**Solution:**  
+
+1. [Solution text - explanations] 
+```{r} 
+# you can modify the settings of the r block. For example:  echo=FALSE, eval = FALSE, cache=TRUE ...
+# Solution code in R: 
+
+# a. Loading the data
+df <- read.csv("/Users/neelbram/Library/Mobile Documents/com~apple~CloudDocs/School/R/R_lab1/owid-covid-data.csv")
+# Modifying date
+names(df)[names(df) == "date"] <- "Date"
+# b. Listing five top dates
+
+```
+
+[Solution text - description of analysis and results]
+
+
+2. [Solution text - explanations] 
+```{r} 
+# Solution code in R 
+
+```
+[Solution text - description of analysis and results]
+
+3. [Solution text - explanations] 
+```{r} 
+# Solution code in R 
+
+```
+[Solution text - description of analysis and results]
+
+4. [Solution text - explanations] 
+```{r} 
+# Solution code in R 
+
+```
+[Solution text - description of analysis and results]
+
+5. [Solution text - explanations] 
+```{r} 
+# Solution code in R 
+
+```
+[Solution text - description of analysis and results]
+
+6. [Solution text - explanations] 
+```{r} 
+# Solution code in R 
+
+```
+[Solution text - description of analysis and results]
+
+7. [Solution text - explanations] 
+```{r} 
+# Solution code in R 
+
+```
+[Solution text - description of analysis and results]
